@@ -2,7 +2,6 @@
 #'
 #' @description A DESCRIPTION OF THE PACKAGE
 #'
-#' @docType package
 #' @name ugcflss-package
 #' @aliases ugcflss
 #' @useDynLib ugcflss, .registration = TRUE

@@ -59,3 +59,6 @@ docs
 
 # Stan instruction files
 Read-and-delete-me
+
+# hide src
+src/*

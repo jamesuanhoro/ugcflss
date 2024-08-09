@@ -1,0 +1,66 @@
+#' Analyze a dataset
+#'
+#' @param data A dataset, ideally a data.frame.
+#' @param grouping_variable The name of the grouping_variable in the dataset.
+#' @param sum_score The name of the sum_score variable in the dataset. This
+#' variable must be whole numbers.
+#' @param minimum_item_response Theorical minimum value on items summed to
+#' create sum score. For example, with Likert data with 5 response categories
+#' coded 0,1,2,3,4, this argument would be `minimum_item_response = 0`.
+#' @param maximum_item_response Theorical maximum value on items summed to
+#' create sum score. For example, with Likert data with 3 response categories
+#' coded 1,2,3, this argument would be `maximum_item_response = 3`.
+#' @param number_items Number of items summed to create the sum score.
+#' @param override_twenty_groups By default, we assume your grouping_variable
+#' does not have more than 20 levels. If you want to override this default,
+#' add `override_twenty_groups = TRUE` to your function call.
+#' @param warmup Number of iterations used to warmup the sampler, per chain.
+#' @param sampling Number of iterations retained for inference, per chain.
+#' @param chains Number of chains to use.
+#' @param cores Number of cores to use.
+#' @param seed Random seed.
+#'
+#' @return Objects containing analysis results.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' model_1 <- ugcflss(
+#'   data, grouping_variable, sum_score,
+#'   minimum_item_response, maximum_item_response, number_items
+#' )
+#' }
+ugcflss <- function(
+    data, grouping_variable, sum_score,
+    minimum_item_response, maximum_item_response, number_items,
+    warmup = 750, sampling = 750, chains = 3, cores = 1,
+    seed = sample.int(.Machine$integer.max, 1),
+    override_twenty_groups = FALSE) {
+  checked_dt <- check_user_input(
+    data, grouping_variable, sum_score,
+    minimum_item_response, maximum_item_response, number_items
+  )
+
+  dt <- checked_dt$dt
+  grp_f <- factor(dt[, 1])
+  grp_levs <- levels(grp_f)
+  grp_i <- as.integer(grp_f)
+
+  user_input <- list(
+    n_items = number_items, min = minimum_item_response,
+    max = maximum_item_response, n_grp = max(grp_i),
+    grps = grp_levs
+  )
+
+  dl <- create_stan_data(
+    y_ord = checked_dt$ss_i_min_shift, grp = grp_i, user_input = user_input
+  )
+
+  model <- rstan::sampling(
+    stanmodels$ugcflss,
+    data = dl,
+    iter = warmup + sampling, warmup = warmup, chains = chains, cores = cores,
+    seed = seed
+  )
+  return(model)
+}
