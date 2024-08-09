@@ -1,3 +1,13 @@
+#' Colour-blind palette
+#' @return As above
+#' @keywords internal
+get_cb_pal <- function() {
+  c(
+    "#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442",
+    "#0072B2", "#D55E00", "#CC79A7"
+  )
+}
+
 #' Create Spline object
 #' @return Return spline
 #' @param user_input additional user input
