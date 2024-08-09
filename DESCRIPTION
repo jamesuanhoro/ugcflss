@@ -1,0 +1,33 @@
+Package: ugcflss
+Title: Unadjusted Group Comparisons For Likert Sum Scores
+Version: 0.0.0.9000
+Authors@R: 
+    person("James", "Uanhoro", , "James.Uanhoro@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-4843-927X"))
+Description: Performs unadjusted group comparisons for data that are sum scores of
+    of several Likert items, and produces plots that help describe patterns in the
+    data. Models rely on Bayesian regularization and hierarchical ordinal regression.
+    Regularization and hierarchical modeling help with stabilizing model parameters
+    and inference about quantities of interest. Ordinal regression helps with
+    describing the distribution of the data accurately.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Biarch: true
+Depends: 
+    R (>= 3.4.0)
+Imports: 
+    methods,
+    Rcpp (>= 0.12.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    rstantools (>= 2.4.0)
+LinkingTo: 
+    BH (>= 1.66.0),
+    Rcpp (>= 0.12.0),
+    RcppEigen (>= 0.3.3.3.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    StanHeaders (>= 2.18.0)
+SystemRequirements: GNU make
