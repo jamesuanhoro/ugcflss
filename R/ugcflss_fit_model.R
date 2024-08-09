@@ -60,7 +60,17 @@ ugcflss_fit_model <- function(
     stanmodels$ugcflss,
     data = dl,
     iter = warmup + sampling, warmup = warmup, chains = chains, cores = cores,
+    init = function() {
+      list(
+        intercept = 0, sigma_0 = 1, sigma_1 = 1, gamma = rep(.5, dl$n_gamma),
+        ln_lambda = matrix(0, nrow = dl$n_gamma, ncol = dl$n_grp)
+      )
+    },
     seed = seed
   )
-  return(model)
+
+  result_object <- list(
+    model = model, stan_data_list = dl, user_input = user_input
+  )
+  return(result_object)
 }
