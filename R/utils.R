@@ -28,6 +28,7 @@ lss_points <- function(user_input) {
 #' @import data.table
 #' @keywords internal
 create_stan_data <- function(y_ord, grp, user_input) {
+  N <- NULL # nolint
   curr_points <- lss_points(user_input)
   curr_points_len <- length(curr_points)
   t_orig <- data.table::data.table(y_ord = y_ord, grp = grp)
@@ -43,8 +44,8 @@ create_stan_data <- function(y_ord, grp, user_input) {
     t_orig[, .N, list(y_ord, grp)][order(grp, y_ord)], # nolint
     all.x = TRUE
   )
-  t_wide[, N := ifelse(is.na(N), 0, N)] # nolint
-  t_wide <- reshape(
+  t_wide[, N := ifelse(is.na(N), 0, N)]
+  t_wide <- stats::reshape(
     t_wide,
     direction = "wide", timevar = "y_ord", idvar = "grp"
   )
@@ -60,7 +61,7 @@ create_stan_data <- function(y_ord, grp, user_input) {
 
 #' User input checker
 #' @returns Check user input
-#' @inheritParams ugcflss
+#' @inheritParams ugcflss_fit_model
 #' @keywords internal
 check_user_input <- function(
     data, grouping_variable, sum_score,
@@ -79,7 +80,7 @@ check_user_input <- function(
 
 #' Generic data checks
 #' @return Data
-#' @inheritParams ugcflss
+#' @inheritParams ugcflss_fit_model
 #' @keywords internal
 generic_data_checks <- function(data, grouping_variable, sum_score) {
   tryCatch(
@@ -123,7 +124,7 @@ generic_data_checks <- function(data, grouping_variable, sum_score) {
   }
 
   tryCatch(
-    dt <- na.omit(dt[, c(grouping_variable, sum_score)]),
+    dt <- stats::na.omit(dt[, c(grouping_variable, sum_score)]),
     error = function(e) {
       statement <- paste(
         "This is a strange one, for some reason, we cannot subset the",
@@ -139,14 +140,14 @@ generic_data_checks <- function(data, grouping_variable, sum_score) {
 }
 
 #' Generic numeric checks
-#' @param adjusted form of original data
+#' @param dt Modified form of original data
 #' @return The adjusted sum scores
-#' @inheritParams ugcflss
+#' @inheritParams ugcflss_fit_model
 #' @keywords internal
 generic_numeric_checks <- function(
     dt, minimum_item_response, maximum_item_response, number_items) {
   tryCatch(
-    ss_i <- na.omit(as.integer(dt[, 2])),
+    ss_i <- stats::na.omit(as.integer(dt[, 2])),
     warning = function(e) {
       statement <- paste(
         "Check that the `sum_score` variable contains whole numbers.",

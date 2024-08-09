@@ -1,3 +1,14 @@
 ^ugcflss\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^\.vscode$
+^README\.html$
+^README\_files$
+^codecov\.yml$
+^vignettes$
+^README\.Rmd$
+^_pkgdown\.yml$
+^pkgdown$
+^\.github$
+^docs$
+^trash\.R$

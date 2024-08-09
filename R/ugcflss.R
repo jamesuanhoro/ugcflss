@@ -25,12 +25,12 @@
 #'
 #' @examples
 #' \dontrun{
-#' model_1 <- ugcflss(
+#' model_1 <- ugcflss_fit_model(
 #'   data, grouping_variable, sum_score,
 #'   minimum_item_response, maximum_item_response, number_items
 #' )
 #' }
-ugcflss <- function(
+ugcflss_fit_model <- function(
     data, grouping_variable, sum_score,
     minimum_item_response, maximum_item_response, number_items,
     warmup = 750, sampling = 750, chains = 3, cores = 1,
