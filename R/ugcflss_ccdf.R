@@ -1,7 +1,7 @@
 #' Compute CCDF for entire sample
 #'
 #' @param res_obj Object returned by main function
-#' @param interval Some quantile interval of interest between 0 and 1
+#' @param interval Some quantile interval between 0 and 1
 #' @param convergence If TRUE, returns CCDF convergence statistics.
 #' If FALSE, creates dataset showing CCDF which can be used for plotting
 #' the CCDF.
@@ -44,7 +44,8 @@ ugcflss_exceed_all <- function(res_obj, interval = .89, convergence = FALSE) {
     ccdf_post_draws <- posterior::as_draws(ccdf_post)
     result <- posterior::summarise_draws(
       ccdf_post_draws,
-      mean, stats::sd,
+      mean,
+      sd = stats::sd,
       ~ posterior::quantile2(.x, probs = c(lower_lim, 1 - lower_lim)),
       posterior::default_convergence_measures()
     )
@@ -95,7 +96,7 @@ ugcflss_exceed_all_plot <- function(
     ),
     data_id = row.names(exc_dt)
   )) +
-    ggplot2::geom_line(size = .25, group = 1) +
+    ggplot2::geom_line(linewidth = .25, group = 1) +
     ggiraph::geom_point_interactive(size = .5) +
     ggplot2::scale_x_continuous(breaks = user_input$min:user_input$max) +
     ggplot2::scale_y_continuous(
@@ -164,7 +165,8 @@ ugcflss_exceed_group <- function(res_obj, interval = .89, convergence = FALSE) {
       ccdf_post_draws <- posterior::as_draws(ccdf_post)
       posterior::summarise_draws(
         ccdf_post_draws,
-        mean, stats::sd,
+        mean,
+        sd = stats::sd,
         ~ posterior::quantile2(.x, probs = c(lower_lim, 1 - lower_lim)),
         posterior::default_convergence_measures()
       )
@@ -227,7 +229,7 @@ ugcflss_exceed_group_plot <- function(
     ),
     data_id = row.names(exc_dt)
   )) +
-    ggplot2::geom_line(size = .25) +
+    ggplot2::geom_line(linewidth = .25) +
     ggiraph::geom_point_interactive(size = .5) +
     ggplot2::scale_x_continuous(breaks = user_input$min:user_input$max) +
     ggplot2::scale_y_continuous(

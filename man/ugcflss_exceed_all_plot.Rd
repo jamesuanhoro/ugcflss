@@ -9,7 +9,7 @@ ugcflss_exceed_all_plot(res_obj, interval = 0.89, show_intervals = FALSE)
 \arguments{
 \item{res_obj}{Object returned by main function}
 
-\item{interval}{Some quantile interval of interest between 0 and 1}
+\item{interval}{Some quantile interval between 0 and 1}
 
 \item{show_intervals}{If TRUE, show intervals on plot,
 if FALSE, do not show intervals}
