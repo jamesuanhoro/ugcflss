@@ -6,7 +6,13 @@
 [![R-CMD-check](https://github.com/jamesuanhoro/ugcflss/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jamesuanhoro/ugcflss/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of ugcflss is to …
+ugcflss performs unadjusted group comparisons for data that are sum
+scores of of several Likert items, and produces plots that help describe
+patterns in the data. Models rely on Bayesian regularization and
+hierarchical ordinal regression. Regularization and hierarchical
+modeling help with stabilizing model parameters and inference about
+quantities of interest. Ordinal regression helps with describing the
+distribution of the data accurately.
 
 ## Installation
 
