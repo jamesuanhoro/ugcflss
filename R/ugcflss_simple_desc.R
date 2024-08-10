@@ -121,6 +121,10 @@ ugcflss_describe_plot <- function(
       ggplot2::aes(yintercept = bar),
       linetype = 2, linewidth = .25, alpha = .25
     ) +
+    ggplot2::geom_point() +
+    ggplot2::geom_linerange(ggplot2::aes(
+      ymin = lo, ymax = hi
+    ), alpha = .75, position = ggplot2::position_dodge(0)) +
     ggplot2::geom_label(
       ggplot2::aes(label = scales::number(mean, .01)),
       vjust = -.5, size = 3,

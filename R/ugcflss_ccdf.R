@@ -84,6 +84,7 @@ ugcflss_exceed_all_plot <- function(
     res_obj = res_obj, interval = interval, convergence = FALSE
   )
   p_out <- ggplot2::ggplot(exc_dt, ggplot2::aes(points, md)) +
+    ggplot2::geom_point(size = .5) +
     ggplot2::geom_line(linewidth = .25, group = 1) +
     ggplot2::scale_x_continuous(breaks = user_input$min:user_input$max) +
     ggplot2::scale_y_continuous(
@@ -205,6 +206,7 @@ ugcflss_exceed_group_plot <- function(
     points, md,
     group = gr_f, col = gr_f, linetype = gr_f
   )) +
+    ggplot2::geom_point(size = .5) +
     ggplot2::geom_line(linewidth = .25) +
     ggplot2::scale_x_continuous(breaks = user_input$min:user_input$max) +
     ggplot2::scale_y_continuous(
