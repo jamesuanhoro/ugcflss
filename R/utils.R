@@ -65,7 +65,8 @@ create_stan_data <- function(y_ord, grp, user_input) {
     n_grp = nrow(t_wide), n_cuts = ncol(t_wide) - 1,
     count_mat = t(t_wide),
     # count_arr = t(t_wide), # nolint
-    n_gamma = ncol(spl_mat), spl_mat = spl_mat
+    n_gamma = ncol(spl_mat), spl_mat = spl_mat,
+    y_ord = y_ord, grp = grp
   ))
 }
 

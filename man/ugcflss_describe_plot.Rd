@@ -2,7 +2,7 @@
 % Please edit documentation in R/ugcflss_simple_desc.R
 \name{ugcflss_describe_plot}
 \alias{ugcflss_describe_plot}
-\title{Compute requested statistic for either entire sample and by group}
+\title{Plot requested statistic for entire sample and by group}
 \usage{
 ugcflss_describe_plot(res_obj, stat = "median", interval = 0.89, tau = 0.5)
 }
@@ -20,5 +20,5 @@ or "quantile".}
 Returns plot
 }
 \description{
-Compute requested statistic for either entire sample and by group
+Plot requested statistic for entire sample and by group
 }
