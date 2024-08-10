@@ -23,7 +23,7 @@ ugcflss_ppd <- function(res_obj, ppd_samples = 200) {
       res_obj = res_obj, which_groups = j, stat = "pmf"
     )
     iter_count <- min(ppd_samples, nrow(pmf))
-    iter_seq <- as.integer(seq(1, nrow(pmf), length.out = iter_count))
+    iter_seq <- sample(seq_len(nrow(pmf)), size = iter_count)
     y_mat <- matrix(nrow = iter_count, ncol = n_group)
     pos <- 1
     for (i in iter_seq) {
@@ -63,7 +63,7 @@ ugcflss_ppd_plot <- function(res_obj, ppd_samples = 200, by_group = FALSE) {
     plt <- bayesplot::ppc_dens_overlay_grouped(
       y = y,
       yrep = ppd_mat,
-      group = res_obj$stan_data_list$grp
+      group = res_obj$user_input$grps[res_obj$stan_data_list$grp]
     ) +
       ggplot2::facet_wrap(~group, scales = "free_y")
   } else {

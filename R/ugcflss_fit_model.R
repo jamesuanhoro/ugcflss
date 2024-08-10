@@ -46,6 +46,17 @@ ugcflss_fit_model <- function(
   grp_levs <- levels(grp_f)
   grp_i <- as.integer(grp_f)
 
+  if (max(grp_i) > 20 && isFALSE(override_twenty_groups)) {
+    statement <- paste(
+      "If you have more than 20 groups to compare,",
+      "set `override_twenty_groups = TRUE` when calling",
+      "`ugcflss_fit_model()`. This is just to ensure you have not selected",
+      "the wrong grouping variable. There is nothing special about 20.",
+      sep = "\n"
+    )
+    stop(statement)
+  }
+
   user_input <- list(
     n_items = number_items, min = minimum_item_response,
     max = maximum_item_response, n_grp = max(grp_i),

@@ -56,3 +56,44 @@ ugcflss_compute_stats <- function(
 
   return(res)
 }
+
+#' Compute Probability of Superiority
+#'
+#' @param res_obj Object returned by main function
+#' @param which_groups Two group ids
+#' @return Returns PS.
+#' @keywords internal
+ugcflss_compute_ps <- function(res_obj, which_groups) {
+  dl <- res_obj$stan_data_list
+
+  intercept <- as.data.frame(res_obj$model, "intercept")[, 1, drop = TRUE]
+  phi_mat <- as.data.frame(res_obj$model, "phi")
+
+  idx_a <- which(as.integer(
+    gsub("phi\\[\\d+,|\\]", "", colnames(phi_mat))
+  ) == which_groups[1])
+  idx_b <- which(as.integer(
+    gsub("phi\\[\\d+,|\\]", "", colnames(phi_mat))
+  ) == which_groups[2])
+
+  ps_vec <- sapply(seq_len(nrow(phi_mat)), function(i) {
+    pmf_a <- diff(c(
+      0,
+      stats::plogis(
+        dl$spl_mat %*% as.numeric(phi_mat[i, idx_a]) - intercept[i]
+      ),
+      1
+    ))
+    pmf_b <- diff(c(
+      0,
+      stats::plogis(
+        dl$spl_mat %*% as.numeric(phi_mat[i, idx_b]) - intercept[i]
+      ),
+      1
+    ))
+    ccdf_a <- 1 - cumsum(pmf_a)
+    sum(pmf_b * ccdf_a + .5 * pmf_b * pmf_a)
+  })
+
+  return(ps_vec)
+}

@@ -15,8 +15,8 @@ ugcflss_pairwise_plot(
 \arguments{
 \item{res_obj}{Object returned by main function}
 
-\item{stat}{Statistic of interest, one of "median", "mean", "sd"
-or "quantile".}
+\item{stat}{Statistic of interest, one of "median", "mean", "sd",
+"quantile" or "ps". ps = probability of superiority.}
 
 \item{interval}{Some quantile interval between 0 and 1}
 

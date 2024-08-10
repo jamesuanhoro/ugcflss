@@ -166,6 +166,8 @@ ugcflss_describe_plot <- function(
 #' Perform pairwise comparisons of requested statistic
 #'
 #' @inheritParams ugcflss_describe
+#' @param stat Statistic of interest, one of "median", "mean", "sd",
+#' "quantile" or "ps". ps = probability of superiority.
 #' @param comparison One of difference, ratio or log-ratio. Log-ratio
 #' will lead to an error if any of the values to be logged are negative
 #' though this should not happen.
@@ -180,11 +182,24 @@ ugcflss_pairwise <- function(
     )
     stop(statement)
   }
+  if (!(stat %in% c("median", "mean", "sd", "quantile", "ps"))) {
+    statement <- paste(
+      "`stat` must be one of \"median\", \"mean\", \"sd\", \"quantile\"",
+      "or \"ps\".",
+      sep = " "
+    )
+    stop(statement)
+  }
 
-  stat_post_group <- ugcflss_describe(
-    res_obj = res_obj, by_group = TRUE, stat = stat,
-    interval = interval, tau = tau, return_draws = TRUE
-  )
+  if (stat != "ps") {
+    stat_post_group <- ugcflss_describe(
+      res_obj = res_obj, by_group = TRUE, stat = stat,
+      interval = interval, tau = tau, return_draws = TRUE
+    )
+    col_names <- colnames(stat_post_group)
+  } else {
+    col_names <- res_obj$user_input$grps
+  }
 
   col_comparisons <- which(
     lower.tri(diag(res_obj$user_input$n_grp)),
@@ -192,7 +207,9 @@ ugcflss_pairwise <- function(
   )
 
   result <- as.data.frame(apply(col_comparisons, 1, function(idxs) {
-    if (comparison == "difference") {
+    if (stat == "ps") {
+      ret <- ugcflss_compute_ps(res_obj = res_obj, which_groups = idxs)
+    } else if (comparison == "difference") {
       ret <- stat_post_group[, idxs[1], drop = TRUE] -
         stat_post_group[, idxs[2], drop = TRUE]
     } else if (comparison == "ratio") {
@@ -205,15 +222,20 @@ ugcflss_pairwise <- function(
     return(ret)
   }))
 
-  var_a <- colnames(stat_post_group)[col_comparisons[, 1]]
-  var_b <- colnames(stat_post_group)[col_comparisons[, 2]]
-  new_colnames <- paste0(
-    ifelse(grepl("log", comparison), "log(", ""),
-    var_a,
-    ifelse(grepl("diff", comparison), "-", "/"),
-    var_b,
-    ifelse(grepl("log", comparison), ")", "")
-  )
+  var_a <- col_names[col_comparisons[, 1]]
+  var_b <- col_names[col_comparisons[, 2]]
+
+  if (stat == "ps") {
+    new_colnames <- paste0("PS(", var_a, ">", var_b, ")")
+  } else {
+    new_colnames <- paste0(
+      ifelse(grepl("log", comparison), "log(", ""),
+      var_a,
+      ifelse(grepl("diff", comparison), "-", "/"),
+      var_b,
+      ifelse(grepl("log", comparison), ")", "")
+    )
+  }
   colnames(result) <- new_colnames
 
   warmup <- res_obj$model@sim$warmup
@@ -256,10 +278,7 @@ ugcflss_pairwise <- function(
 
 #' Perform pairwise comparisons of requested statistic
 #'
-#' @inheritParams ugcflss_describe
-#' @param comparison One of difference, ratio or log-ratio. Log-ratio
-#' will lead to an error if any of the values to be logged are negative
-#' though this should not happen.
+#' @inheritParams ugcflss_pairwise
 #' @return Returns dataset
 #' @export
 ugcflss_pairwise_plot <- function(
@@ -270,11 +289,23 @@ ugcflss_pairwise_plot <- function(
     tau = tau, comparison = comparison, return_draws = FALSE
   )
   colnames(pair_results)[4:5] <- c("lo", "hi")
-  ratio_pen <- ifelse(comparison == "ratio", 1, 0)
-  pair_results$shade <-
-    (pair_results$lo - ratio_pen) * (pair_results$hi - ratio_pen) > 0
 
-  group_1 <- group_1_i <- group_2 <- group_2_i <- lo <- hi <- shade <- NULL
+  penalty <- ifelse(stat == "ps", .5, ifelse(comparison == "ratio", 1, 0))
+  pair_results$shade <-
+    (pair_results$lo - penalty) * (pair_results$hi - penalty) > 0
+
+  if (stat == "ps") {
+    pair_results$disp <- scales::percent(pair_results$mean, 1)
+    pair_results$disp_lo <- scales::percent(pair_results$lo, 1)
+    pair_results$disp_hi <- scales::percent(pair_results$hi, 1)
+  } else {
+    pair_results$disp <- scales::number(pair_results$mean, .01)
+    pair_results$disp_lo <- scales::number(pair_results$lo, .01)
+    pair_results$disp_hi <- scales::number(pair_results$hi, .01)
+  }
+
+  group_1 <- group_1_i <- group_2 <- group_2_i <-
+    disp <- disp_lo <- disp_hi <- shade <- NULL
 
   p_out <- ggplot2::ggplot(
     pair_results,
@@ -288,12 +319,8 @@ ugcflss_pairwise_plot <- function(
       col = 1, size = .05, alpha = 1
     ) +
     ggplot2::geom_text(ggplot2::aes(
-      label = paste0(
-        scales::number(mean, .01), "\n[",
-        scales::number(lo, .01), ", ", scales::number(hi, .01),
-        "]"
-      )
-    ), size = 2.5) +
+      label = paste0(disp, "\n[", disp_lo, ", ", disp_hi, "]")
+    )) +
     ggplot2::theme_classic() +
     ggplot2::theme(
       strip.background = ggplot2::element_blank(),

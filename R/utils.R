@@ -100,7 +100,7 @@ generic_data_checks <- function(data, grouping_variable, sum_score) {
       statement <- paste(
         "Could not make the object passed as data into a data.frame.",
         "Please check this object to be sure it is a dataset.",
-        sep = " "
+        sep = "\n"
       )
       stop(statement)
     }
@@ -116,7 +116,7 @@ generic_data_checks <- function(data, grouping_variable, sum_score) {
       statement <- paste(
         "Neither the `grouping_variable` nor the `sum_score` is among the",
         "variables in the dataset",
-        sep = " "
+        sep = "\n"
       )
     } else if (present_both == 1) {
       if (isFALSE(present_grouping_variable)) {
@@ -141,7 +141,7 @@ generic_data_checks <- function(data, grouping_variable, sum_score) {
         "This is a strange one, for some reason, we cannot subset the",
         "dataset to the variables you provided even though both variables",
         "are in the dataset.",
-        sep = " "
+        sep = "\n"
       )
       stop(statement)
     }
@@ -180,7 +180,7 @@ generic_numeric_checks <- function(
       "When converting the `sum_score` variable to whole numbers,",
       "some of the values resulted in missing data meaning that",
       "not all values were whole numbers.",
-      sep = " "
+      sep = "\n"
     )
     stop(statement)
   }
@@ -190,7 +190,7 @@ generic_numeric_checks <- function(
     statement <- paste(
       "Could not successfully convert the `minimum_item_response` to a",
       "whole number.",
-      sep = " "
+      sep = "\n"
     )
     stop(statement)
   }
@@ -199,7 +199,7 @@ generic_numeric_checks <- function(
     statement <- paste(
       "Could not successfully convert the `maximum_item_response` to a",
       "whole number.",
-      sep = " "
+      sep = "\n"
     )
     stop(statement)
   }
@@ -208,7 +208,7 @@ generic_numeric_checks <- function(
     statement <- paste(
       "Could not successfully convert the `number_items` to a",
       "whole number.",
-      sep = " "
+      sep = "\n"
     )
     stop(statement)
   }
@@ -219,7 +219,7 @@ generic_numeric_checks <- function(
       "The lowest value of the scale score was less than the theoretical",
       "minimum specified by the user based on the `minimum_item_response`",
       "and `number_items`. This should not happen.",
-      sep = " "
+      sep = "\n"
     )
     stop(statement)
   }
@@ -229,7 +229,7 @@ generic_numeric_checks <- function(
       "The lowest value of the scale score was greater than the theoretical",
       "maximum specified by the user based on the `maximum_item_response`",
       "and `number_items`. This should not happen.",
-      sep = " "
+      sep = "\n"
     )
     stop(statement)
   }
