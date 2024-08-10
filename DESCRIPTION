@@ -20,7 +20,6 @@ Depends:
 Imports: 
     bayesplot,
     data.table,
-    ggiraph,
     ggplot2,
     methods,
     posterior,

@@ -115,18 +115,8 @@ ugcflss_describe_plot <- function(
   group_t <- group_i <- lo <- mean <- hi <- bar <- NULL
 
   p_out <- ggplot2::ggplot(stat_post, ggplot2::aes(
-    stats::reorder(group_t, -group_i), mean,
-    tooltip = paste0(
-      scales::number(mean, .01), " [",
-      scales::number(lo, .01), ", ",
-      scales::number(hi, .01), "]"
-    ),
-    data_id = row.names(stat_post)
+    stats::reorder(group_t, -group_i), mean
   )) +
-    ggiraph::geom_point_interactive() +
-    ggiraph::geom_linerange_interactive(ggplot2::aes(
-      ymin = lo, ymax = hi
-    ), alpha = .75, position = ggplot2::position_dodge(0)) +
     ggplot2::geom_hline(
       ggplot2::aes(yintercept = bar),
       linetype = 2, linewidth = .25, alpha = .25

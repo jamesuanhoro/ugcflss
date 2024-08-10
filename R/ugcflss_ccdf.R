@@ -83,21 +83,8 @@ ugcflss_exceed_all_plot <- function(
   exc_dt <- ugcflss_exceed_all(
     res_obj = res_obj, interval = interval, convergence = FALSE
   )
-  p_out <- ggplot2::ggplot(exc_dt, ggplot2::aes(
-    points, md,
-    tooltip = paste0(
-      "Response scale value: ",
-      scales::number(points, .01), "\n",
-      "Pr(X > ", scales::number(points, .01), "): ",
-      paste0(
-        scales::percent(md, .1), " [", scales::percent(lo, .1), ", ",
-        scales::percent(hi, .1), "]"
-      )
-    ),
-    data_id = row.names(exc_dt)
-  )) +
+  p_out <- ggplot2::ggplot(exc_dt, ggplot2::aes(points, md)) +
     ggplot2::geom_line(linewidth = .25, group = 1) +
-    ggiraph::geom_point_interactive(size = .5) +
     ggplot2::scale_x_continuous(breaks = user_input$min:user_input$max) +
     ggplot2::scale_y_continuous(
       labels = scales::percent_format(1), breaks = seq(0, 1, .2)
@@ -216,21 +203,9 @@ ugcflss_exceed_group_plot <- function(
   )
   p_out <- ggplot2::ggplot(exc_dt, ggplot2::aes(
     points, md,
-    group = gr_f, col = gr_f, linetype = gr_f,
-    tooltip = paste0(
-      "Group: ", gr_f, "\n",
-      "Response scale value: ",
-      scales::number(points, .01), "\n",
-      "Pr(X > ", scales::number(points, .01), "): ",
-      paste0(
-        scales::percent(md, .1), " [", scales::percent(lo, .1), ", ",
-        scales::percent(hi, .1), "]"
-      )
-    ),
-    data_id = row.names(exc_dt)
+    group = gr_f, col = gr_f, linetype = gr_f
   )) +
     ggplot2::geom_line(linewidth = .25) +
-    ggiraph::geom_point_interactive(size = .5) +
     ggplot2::scale_x_continuous(breaks = user_input$min:user_input$max) +
     ggplot2::scale_y_continuous(
       labels = scales::percent_format(1), breaks = seq(0, 1, .2)
