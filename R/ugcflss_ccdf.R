@@ -97,7 +97,7 @@ ugcflss_exceed_all_plot <- function(
     ggplot2::labs(
       x = "Value on response scale", y = "Proportion of sample > Value"
     )
-  if (show_intervals) {
+  if (isTRUE(show_intervals)) {
     p_out <- p_out +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = lo, ymax = hi),
@@ -222,7 +222,7 @@ ugcflss_exceed_group_plot <- function(
       color = "", linetype = ""
     ) +
     ggplot2::theme(legend.position = "top")
-  if (show_intervals) {
+  if (isTRUE(show_intervals)) {
     p_out <- p_out +
       ggplot2::geom_ribbon(ggplot2::aes(ymin = lo, ymax = hi), alpha = .25)
   }
