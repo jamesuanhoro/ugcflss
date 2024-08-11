@@ -1,3 +1,14 @@
+n_warm <- 50
+n_sampling <- 50
+n_chains <- 1
+
+expect_error(suppressWarnings(fit_mod <- ugcflss_fit_model(
+  data = dt_correct,
+  grouping_variable = "grp", sum_score = "likert_ss",
+  minimum_item_response = 1, maximum_item_response = 5, number_items = 6,
+  warmup = n_warm, sampling = n_sampling, chains = n_chains, cores = n_chains
+)), NA)
+
 # interval and tau failure tests ----
 
 test_that("Fail on wrong interval and tau", {
