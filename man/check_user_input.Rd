@@ -29,7 +29,8 @@ coded 0,1,2,3,4, this argument would be \code{minimum_item_response = 0}.}
 create sum score. For example, with Likert data with 3 response categories
 coded 1,2,3, this argument would be \code{maximum_item_response = 3}.}
 
-\item{number_items}{Number of items summed to create the sum score.}
+\item{number_items}{Number of items summed to create the sum score.
+Must be at least 1.}
 }
 \value{
 Check user input

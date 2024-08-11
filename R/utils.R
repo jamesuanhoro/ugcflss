@@ -185,29 +185,40 @@ generic_numeric_checks <- function(
     stop(statement)
   }
 
-  # minimum_item_response must be number
-  if (is.na(minimum_item_response) || is.nan(minimum_item_response)) {
+  # minimum_item_response must be integer
+  tryCatch(is_whole_number(minimum_item_response),
+    error = function(e) {
+      statement <- paste(
+        "`minimum_item_response` is not a whole number.",
+        sep = " "
+      )
+      stop(statement)
+    }
+  )
+  # maximum_item_response must be integer
+  tryCatch(is_whole_number(maximum_item_response),
+    error = function(e) {
+      statement <- paste(
+        "`maximum_item_response` is not a whole number.",
+        sep = " "
+      )
+      stop(statement)
+    }
+  )
+  # number_items must be a positive integer
+  tryCatch(is_positive_whole_number(number_items),
+    error = function(e) {
+      statement <- paste(
+        "`number_items` is not a positive whole number.",
+        sep = " "
+      )
+      stop(statement)
+    }
+  )
+  # maximum_item_response must exceed minimum_item_response
+  if (minimum_item_response >= maximum_item_response) {
     statement <- paste(
-      "Could not successfully convert the `minimum_item_response` to a",
-      "whole number.",
-      sep = "\n"
-    )
-    stop(statement)
-  }
-  # maximum_item_response must be number
-  if (is.na(maximum_item_response) || is.nan(maximum_item_response)) {
-    statement <- paste(
-      "Could not successfully convert the `maximum_item_response` to a",
-      "whole number.",
-      sep = "\n"
-    )
-    stop(statement)
-  }
-  # number_items must be number
-  if (is.na(number_items) || is.nan(number_items)) {
-    statement <- paste(
-      "Could not successfully convert the `number_items` to a",
-      "whole number.",
+      "`minimum_item_response` must be less than `maximum_item_response`.",
       sep = "\n"
     )
     stop(statement)
@@ -226,7 +237,7 @@ generic_numeric_checks <- function(
   maximum_scale_score <- maximum_item_response * number_items
   if (max(ss_i) > maximum_scale_score) {
     statement <- paste(
-      "The lowest value of the scale score was greater than the theoretical",
+      "The highest value of the scale score was greater than the theoretical",
       "maximum specified by the user based on the `maximum_item_response`",
       "and `number_items`. This should not happen.",
       sep = "\n"
@@ -237,4 +248,41 @@ generic_numeric_checks <- function(
   ss_i_min_shift <- ss_i - minimum_scale_score + 1
 
   return(ss_i_min_shift)
+}
+
+#' Whole number tester
+#' @param input Candidate whole number
+#' @return Fail if not whole number
+#' @keywords internal
+is_whole_number <- function(input) {
+  res <- input %% 1 == 0
+  if (!isTRUE(res)) {
+    stop()
+  }
+}
+
+#' Positive whole number tester
+#' @param input Candidate whole number
+#' @return Fail if not non-negative whole number
+#' @keywords internal
+is_positive_whole_number <- function(input) {
+  is_whole_number(input)
+  if (input <= 0) {
+    stop()
+  }
+}
+
+#' Positive whole number tester
+#' @param input Candidate percentage
+#' @return Fail if not within 0 and 1
+#' @keywords internal
+check_tau_interval <- function(input, descriptor) {
+  res <- input > 0 && input < 1
+  if (!isTRUE(res)) {
+    statement <- paste(
+      descriptor, "is not a number between 0 and 1.",
+      sep = " "
+    )
+    stop(statement)
+  }
 }

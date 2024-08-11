@@ -11,9 +11,12 @@
 #' create sum score. For example, with Likert data with 3 response categories
 #' coded 1,2,3, this argument would be `maximum_item_response = 3`.
 #' @param number_items Number of items summed to create the sum score.
+#' Must be at least 1.
 #' @param override_twenty_groups By default, we assume your grouping_variable
 #' does not have more than 20 levels. If you want to override this default,
 #' add `override_twenty_groups = TRUE` to your function call.
+#' @param show_messages (Logical) If TRUE, show messages from Stan sampler,
+#' if FALSE, hide messages.
 #' @param warmup Number of iterations used to warmup the sampler, per chain.
 #' @param sampling Number of iterations retained for inference, per chain.
 #' @param chains Number of chains to use.
@@ -31,11 +34,14 @@
 #' )
 #' }
 ugcflss_fit_model <- function(
-    data, grouping_variable, sum_score,
-    minimum_item_response, maximum_item_response, number_items,
+    data,
+    grouping_variable = NA_character_, sum_score = NA_character_,
+    minimum_item_response = NA_integer_, maximum_item_response = NA_integer_,
+    number_items = NA_integer_,
     warmup = 750, sampling = 750, chains = 3, cores = 1,
     seed = sample.int(.Machine$integer.max, 1),
-    override_twenty_groups = FALSE) {
+    override_twenty_groups = FALSE,
+    show_messages = TRUE) {
   checked_dt <- check_user_input(
     data, grouping_variable, sum_score,
     minimum_item_response, maximum_item_response, number_items
@@ -46,7 +52,7 @@ ugcflss_fit_model <- function(
   grp_levs <- levels(grp_f)
   grp_i <- as.integer(grp_f)
 
-  if (max(grp_i) > 20 && isFALSE(override_twenty_groups)) {
+  if (max(grp_i) > 20 && !isTRUE(override_twenty_groups)) {
     statement <- paste(
       "If you have more than 20 groups to compare,",
       "set `override_twenty_groups = TRUE` when calling",
@@ -77,7 +83,8 @@ ugcflss_fit_model <- function(
         ln_lambda = matrix(0, nrow = dl$n_gamma, ncol = dl$n_grp)
       )
     },
-    seed = seed
+    seed = seed,
+    show_messages = !isFALSE(show_messages)
   )
 
   result_object <- list(

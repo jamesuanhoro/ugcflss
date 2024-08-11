@@ -9,12 +9,7 @@
 #' @return Returns dataset.
 #' @export
 ugcflss_exceed_all <- function(res_obj, interval = .89, convergence = FALSE) {
-  if (!(interval > 0 && interval < 1)) {
-    statement <- paste(
-      "Interval must be a number between 0 and 1."
-    )
-    stop(statement)
-  }
+  check_tau_interval(interval, "interval")
 
   loc <- count <- points <- NULL
 
@@ -114,12 +109,7 @@ ugcflss_exceed_all_plot <- function(
 #' @return Returns dataset.
 #' @export
 ugcflss_exceed_group <- function(res_obj, interval = .89, convergence = FALSE) {
-  if (!(interval > 0 && interval < 1)) {
-    statement <- paste(
-      "Interval must be a number between 0 and 1."
-    )
-    stop(statement)
-  }
+  check_tau_interval(interval, "interval")
 
   loc <- count <- points <- gr <- gr_f <- NULL
 

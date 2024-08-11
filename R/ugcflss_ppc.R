@@ -6,12 +6,15 @@
 #' @return Returns dataset
 #' @export
 ugcflss_ppd <- function(res_obj, ppd_samples = 200) {
-  if (is.na(ppd_samples) || is.nan(ppd_samples) || ppd_samples <= 0) {
-    statement <- paste(
-      "`ppd_samples` must be a number greater than 0."
-    )
-    stop(statement)
-  }
+  tryCatch(is_positive_whole_number(ppd_samples),
+    error = function(e) {
+      statement <- paste(
+        "`ppd_samples` is not a positive whole number.",
+        sep = " "
+      )
+      stop(statement)
+    }
+  )
 
   n_by_group <- colSums(res_obj$stan_data_list$count_mat)
 

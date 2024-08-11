@@ -6,17 +6,18 @@
 \usage{
 ugcflss_fit_model(
   data,
-  grouping_variable,
-  sum_score,
-  minimum_item_response,
-  maximum_item_response,
-  number_items,
+  grouping_variable = NA_character_,
+  sum_score = NA_character_,
+  minimum_item_response = NA_integer_,
+  maximum_item_response = NA_integer_,
+  number_items = NA_integer_,
   warmup = 750,
   sampling = 750,
   chains = 3,
   cores = 1,
   seed = sample.int(.Machine$integer.max, 1),
-  override_twenty_groups = FALSE
+  override_twenty_groups = FALSE,
+  show_messages = TRUE
 )
 }
 \arguments{
@@ -35,7 +36,8 @@ coded 0,1,2,3,4, this argument would be \code{minimum_item_response = 0}.}
 create sum score. For example, with Likert data with 3 response categories
 coded 1,2,3, this argument would be \code{maximum_item_response = 3}.}
 
-\item{number_items}{Number of items summed to create the sum score.}
+\item{number_items}{Number of items summed to create the sum score.
+Must be at least 1.}
 
 \item{warmup}{Number of iterations used to warmup the sampler, per chain.}
 
@@ -50,6 +52,9 @@ coded 1,2,3, this argument would be \code{maximum_item_response = 3}.}
 \item{override_twenty_groups}{By default, we assume your grouping_variable
 does not have more than 20 levels. If you want to override this default,
 add \code{override_twenty_groups = TRUE} to your function call.}
+
+\item{show_messages}{(Logical) If TRUE, show messages from Stan sampler,
+if FALSE, hide messages.}
 }
 \value{
 Objects containing analysis results.

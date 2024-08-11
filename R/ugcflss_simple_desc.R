@@ -23,19 +23,8 @@ ugcflss_describe <- function(
     stop(statement)
   }
 
-  if (!(interval > 0 && interval < 1)) {
-    statement <- paste(
-      "Interval must be a number between 0 and 1."
-    )
-    stop(statement)
-  }
-
-  if (!(tau > 0 && tau < 1)) {
-    statement <- paste(
-      "`tau` must be a number between 0 and 1."
-    )
-    stop(statement)
-  }
+  check_tau_interval(interval, "interval")
+  check_tau_interval(tau, "tau")
 
   stat_real <- stat
   if (stat == "median") {
@@ -245,12 +234,7 @@ ugcflss_pairwise <- function(
     return(result)
   }
 
-  if (!(interval > 0 && interval < 1)) {
-    statement <- paste(
-      "Interval must be a number between 0 and 1."
-    )
-    stop(statement)
-  }
+  check_tau_interval(interval, "interval")
 
   lower_lim <- (1 - interval) / 2 # nolint
 
