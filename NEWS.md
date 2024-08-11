@@ -1,3 +1,7 @@
+# ugcflss 0.1.1
+
+* Added tests, covers all exposed functions
+
 # ugcflss 0.1.0
 
 * Initial full version of package.
