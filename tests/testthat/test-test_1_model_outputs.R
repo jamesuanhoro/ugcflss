@@ -1,3 +1,6 @@
+# skip tests on CRAN
+if (!identical(Sys.getenv("NOT_CRAN"), "true")) return()
+
 n_warm <- 50
 n_sampling <- 50
 n_chains <- 3
@@ -370,4 +373,20 @@ test_that("PPD succeeds", {
   expect_true(nrow(output) == min(c(ppd_samples, n_sampling * n_chains)))
 })
 
-# TODO: ppd plotting
+# ppd plot success tests ----
+
+test_that("PPD plot success", {
+  grid <- expand.grid(by_group = c(TRUE, FALSE))
+
+  apply(grid, 1, function(condition) {
+    by_group <- condition["by_group"]
+
+    ppd_samples <- sample(50:5e3, 1)
+
+    output <- ugcflss_ppd_plot(
+      fit_mod,
+      ppd_samples = ppd_samples, by_group = by_group
+    )
+    expect_true(any(class(output) == "ggplot"))
+  })
+})
