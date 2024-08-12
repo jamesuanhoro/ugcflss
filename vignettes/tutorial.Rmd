@@ -74,23 +74,25 @@ Results are all on the 1 -- 4 scale, i.e. assuming the items were averaged rathe
 ### For the overall sample
 
 ```{r describe_overall_1, cache = TRUE}
-ugcflss_describe(fitted_model, stat = "median")
+overall_median <- ugcflss_describe(fitted_model, stat = "median")
+overall_median
 ```
 
-The estimate of the median is 2.92. By default, I report 89% quantile intervals i.e. the middle 89% of the distribution of the parameter. So one might say the median was 2.92 (SE = 0.076), 89% CrI [2.79, 3.04], where CrI stands for credible interval.
+The estimate of the median is `r scales::number(overall_median$mean, .01)`. By default, I report 89% quantile intervals i.e. the middle 89% of the distribution of the parameter. So one might say the median was `r scales::number(overall_median$mean, .01)` (SE = `r scales::number(overall_median$sd, .001)`), 89% CrI [`r scales::number(overall_median$q5.5, .01)`, `r scales::number(overall_median$q94.5, .01)`], where CrI stands for credible interval.
 
 Statistics such as `rhat`, `ess_bulk` and `ess_tail` are parameter convergence statistics, i.e. can we trust that the parameter has converged to a final solution? `ess` stands for effective sample size, and we want this statistic in the hundreds. `rhat` under 1.01 or 1.05 (liberal) suggests parameter convergence. One way to make `rhat` smaller and `ess_` larger is to increase the number of iterations when calling `ugcflss_fit_model()`. For example, you can modify the model fitting call: `ugcflss_fit_model(..., warmup = 2000, sampling = 2000)`, both arguments are 750 by default.
 
 Other potential statistics are `stat = "median"`, `stat = "mean"`, `stat = "sd"`, or `stat = "quantile"`. When requesting quantiles, also specify the `tau` argument to set the desired percentile. I might also want conventional 95% intervals:
 
 ```{r describe_overall_2, cache = TRUE}
-ugcflss_describe(
+overall_q78 <- ugcflss_describe(
   fitted_model,
   stat = "quantile", tau = .78, interval = .95
 )
+overall_q78
 ```
 
-The 78% percentile was 3.54 (SE = .049), 95% CrI [3.45, 3.64].
+The 78% percentile was `r scales::number(overall_q78$mean, .01)` (SE = `r scales::number(overall_q78$sd, .001)`), 95% CrI [`r scales::number(overall_q78$q2.5, .01)`, `r scales::number(overall_q78$q97.5, .01)`].
 
 For those more familiar with Bayesian analysis, you can request these computed samples by calling `ugcflss_describe(..., return_draws = TRUE)`.
 
@@ -124,15 +126,18 @@ ugcflss_describe_plot(fitted_model, stat = "mean")
 
 We can perform pairwise comparisons using:
 
-```{r pairwise_1, cache = TRUE}
-ugcflss_pairwise(fitted_model, stat = "mean")
+```{r pairwise_1, cache = TRUE, out.width = "150%"}
+pairwise_mean_diff <- ugcflss_pairwise(fitted_model, stat = "mean")
+pairwise_mean_diff
 ```
 
-We see pairwise mean differences, for example: the mean of group B is less than the mean of group A by .00199 points (SE = 0.10), 89% CrI [-0.17, 0.16].
+We see pairwise mean differences, for example: the mean of group B was less than the mean of group A by `r scales::number(pairwise_mean_diff$mean[1], .01)` (SE = `r scales::number(pairwise_mean_diff$sd[1], .001)`), 89% CrI [`r scales::number(pairwise_mean_diff$q5.5[1], .01)`, `r scales::number(pairwise_mean_diff$q94.5[1], .01)`].
+
+The `p_direction` column has the probability of direction. This is the probability that a coefficient whose estimate is positive (negative) is indeed positive (negative). Hence, there was a `r scales::percent(pairwise_mean_diff$p_direction[1], .1)` chance that the `r scales::number(pairwise_mean_diff$mean[1], .01)` coefficient was `r ifelse(pairwise_mean_diff$mean[1] > 0, "positive", "negative")`. This is a Bayesian analog to _p_-values, and quantifies the evidence in favour of a particular direction for an effect.
 
 We can also perform ratio and log-ratio comparisons. For example, here is the pairwise log-ratio comparison of group standard deviations:
 
-```{r pairwise_2, cache = TRUE}
+```{r pairwise_2, cache = TRUE, out.width = "150%"}
 ugcflss_pairwise(fitted_model, stat = "sd", comparison = "log-ratio")
 ```
 
@@ -158,10 +163,60 @@ The PS is both the `stat` and `comparison` when calling the PS, the value of `co
 
 It is easier to parse several pairwise comparisons using plots. ugcflss can plot pairwise comparisons:
 
+```{r pairwise_plot_1_prep, cache = TRUE, include = FALSE}
+pp_median_comp <- ugcflss_pairwise(
+  fitted_model,
+  stat = "median", comparison = "ratio"
+)
+```
+
 ```{r pairwise_plot_1, cache = TRUE, fig.height = 2.5}
 ugcflss_pairwise_plot(fitted_model, stat = "median", comparison = "ratio")
 ```
 
+The topleft cell shows the result of median(B) / median(A) -- its value is `r ifelse(pp_median_comp$mean[1] > 1, "above 1", "less than 1")` meaning the median of group B was `r ifelse(pp_median_comp$mean[1] > 1, "greater than", "less than")` the median of group A -- there was a `r scales::percent(pp_median_comp$p_direction[1], 1)` chance this is true. The two values in brackets are the credible intervals.
+
 ```{r pairwise_plot_2, cache = TRUE, fig.height = 2.5}
 ugcflss_pairwise_plot(fitted_model, stat = "ps")
+```
+
+We do not show the probability of direction in the plot for the PS -- it can be confusing.
+
+## Exceedance probability
+
+Sometimes, specific values on scale scores have practical significance, so we may be interested in how likely respondents were to have a score that exceeded some threshold. We can request this statistic:
+
+```{r exceed_overall, cache = TRUE}
+exceed_overall <- ugcflss_exceed_all(fitted_model)
+exceed_overall
+```
+
+Based on the model, `r scales::percent(exceed_overall$md[1], .1)` of respondents had a score greater than `r scales::number(exceed_overall$points[1], .1)`. If you simply count using sample statistics, we get `r scales::percent(exceed_overall$count[1], .1)`. The `lo` and `hi` columns are the 89% CrI by default, though these can be changed using `ugcflss_exceed_all(fitted_model, interval = .xx)`.
+
+We can also request this statistic by group (results not shown):
+
+```{r exceed_group, eval = FALSE}
+ugcflss_exceed_group(fitted_model)
+```
+
+One can also visualize these results:
+
+```{r exceed_overall_plot, cache = TRUE}
+ugcflss_exceed_all_plot(fitted_model)
+```
+
+```{r exceed_group_plot, cache = TRUE}
+ugcflss_exceed_group_plot(fitted_model)
+```
+
+And there are options to show some desired interval (89% by default), e.g.
+
+```{r exceed_overall_plot_int, cache = TRUE}
+ugcflss_exceed_all_plot(fitted_model, interval = .99, show_intervals = TRUE)
+```
+
+The same is possible by group (results not shown):
+
+```{r exceed_group_plot_int, eval = FALSE}
+ugcflss_exceed_group_plot(fitted_model, show_intervals = TRUE)
 ```

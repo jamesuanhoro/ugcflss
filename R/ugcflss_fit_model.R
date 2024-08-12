@@ -52,7 +52,7 @@ ugcflss_fit_model <- function(
     adapt_delta = .9,
     max_treedepth = 10,
     chains = 3,
-    cores = min(chains, max(parallel::detectCores() - 2), 1),
+    cores = min(chains, max(parallel::detectCores() - 2, 1)),
     seed = sample.int(.Machine$integer.max, 1),
     override_twenty_groups = FALSE,
     show_messages = TRUE) {

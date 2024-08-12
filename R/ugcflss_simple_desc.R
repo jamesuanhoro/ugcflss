@@ -234,6 +234,19 @@ ugcflss_pairwise <- function(
     return(result)
   }
 
+  null_value <- 0
+  if (stat == "ps") {
+    null_value <- .5
+  } else if (comparison == "ratio") {
+    null_value <- 1
+  }
+
+  p_direction <- sapply(seq_len(ncol(result) - 3), function(col_id) {
+    p <- mean(result[, col_id] > null_value)
+    p <- ifelse(p < .5, 1 - p, p)
+    return(p)
+  })
+
   check_tau_interval(interval, "interval")
 
   lower_lim <- (1 - interval) / 2 # nolint
@@ -250,6 +263,7 @@ ugcflss_pairwise <- function(
   result$group_2 <- res_obj$user_input$grps[col_comparisons[, 2]]
   result$group_1_i <- col_comparisons[, 1]
   result$group_2_i <- col_comparisons[, 2]
+  result$p_direction <- p_direction
 
   return(result)
 }
@@ -272,10 +286,14 @@ ugcflss_pairwise_plot <- function(
   pair_results$shade <-
     (pair_results$lo - penalty) * (pair_results$hi - penalty) > 0
 
+  pair_results$pd_text <- paste0(
+    ", ", scales::percent(pair_results$p_direction, 1)
+  )
   if (stat == "ps") {
     pair_results$disp <- scales::percent(pair_results$mean, 1)
     pair_results$disp_lo <- scales::percent(pair_results$lo, 1)
     pair_results$disp_hi <- scales::percent(pair_results$hi, 1)
+    pair_results$pd_text <- ""
   } else {
     pair_results$disp <- scales::number(pair_results$mean, .01)
     pair_results$disp_lo <- scales::number(pair_results$lo, .01)
@@ -283,7 +301,8 @@ ugcflss_pairwise_plot <- function(
   }
 
   group_1 <- group_1_i <- group_2 <- group_2_i <-
-    disp <- disp_lo <- disp_hi <- shade <- NULL
+    disp <- disp_lo <- disp_hi <- shade <-
+    pd_text <- p_direction <- NULL
 
   p_out <- ggplot2::ggplot(
     pair_results,
@@ -297,7 +316,11 @@ ugcflss_pairwise_plot <- function(
       col = 1, size = .05, alpha = 1
     ) +
     ggplot2::geom_text(ggplot2::aes(
-      label = paste0(disp, "\n[", disp_lo, ", ", disp_hi, "]")
+      label = paste0(
+        disp, pd_text,
+        "\n[", disp_lo, ", ", disp_hi, "]"
+      ),
+      alpha = p_direction - .5
     )) +
     ggplot2::theme_classic() +
     ggplot2::theme(
@@ -308,7 +331,7 @@ ugcflss_pairwise_plot <- function(
       plot.margin = ggplot2::margin(0, 0, 0, 0)
     ) +
     ggplot2::scale_fill_manual(values = c("white", "#d3d3d3")) +
-    ggplot2::scale_alpha(range = c(.15, 1)) +
+    ggplot2::scale_alpha(range = c(.5, 1)) +
     ggplot2::guides(alpha = "none", fill = "none")
 
   return(p_out)
