@@ -31,7 +31,7 @@ library(ugcflss)
 
 I use hypothetical data in this example. The sum scores are the sum of 10 items, each with response categories coded 1 to 4. Hence, the sum score can range from 10 $(10 \times 1)$ to 40 $(10 \times 4)$. These data were collected from 300 people who belong to 6 groups: A -- F.
 
-```{r create_data, cache = TRUE}
+```{r create_data, cache = FALSE}
 set.seed(12345)
 dt <- data.frame(grp = sample(LETTERS[1:6], 300, replace = TRUE))
 dt$sum_score <- as.integer(cut(stats::rnorm(
@@ -42,7 +42,7 @@ summary(dt)
 
 We can visualize the data using a boxplot:
 
-```{r data_boxplot, cache = TRUE}
+```{r data_boxplot, cache = FALSE}
 boxplot(sum_score ~ grp, dt, horizontal = TRUE)
 ```
 
@@ -54,11 +54,12 @@ Once we have a dataset with a grouping variable (`grp` in this example), and a s
 
 When running the model, we need to inform the package about the minimum and maximum response categories on the items that were summed to create the sum score and the number of items we summed, here: 1, 4 and 10 respectively.
 
-```{r fit_model, cache = TRUE}
+```{r fit_model, cache = FALSE}
 fitted_model <- ugcflss_fit_model(
   data = dt,
   grouping_variable = "grp", sum_score = "sum_score",
   minimum_item_response = 1, maximum_item_response = 4,
+  chains = 1, # you can likely ignore this argument
   number_items = 10
 )
 ```
@@ -73,7 +74,7 @@ Results are all on the 1 -- 4 scale, i.e. assuming the items were averaged rathe
 
 ### For the overall sample
 
-```{r describe_overall_1, cache = TRUE}
+```{r describe_overall_1, cache = FALSE}
 overall_median <- ugcflss_describe(fitted_model, stat = "median")
 overall_median
 ```
@@ -84,7 +85,7 @@ Statistics such as `rhat`, `ess_bulk` and `ess_tail` are parameter convergence s
 
 Other potential statistics are `stat = "median"`, `stat = "mean"`, `stat = "sd"`, or `stat = "quantile"`. When requesting quantiles, also specify the `tau` argument to set the desired percentile. I might also want conventional 95% intervals:
 
-```{r describe_overall_2, cache = TRUE}
+```{r describe_overall_2, cache = FALSE}
 overall_q78 <- ugcflss_describe(
   fitted_model,
   stat = "quantile", tau = .78, interval = .95
@@ -100,13 +101,13 @@ For those more familiar with Bayesian analysis, you can request these computed s
 
 We can also request any of the statistics above by group:
 
-```{r describe_group_1, cache = TRUE}
+```{r describe_group_1, cache = FALSE}
 ugcflss_describe(fitted_model, stat = "sd", by_group = TRUE)
 ```
 
 These are the group standard deviations. Out of curiosity, I also show their sample estimates:
 
-```{r describe_group_2, cache = TRUE}
+```{r describe_group_2, cache = FALSE}
 aggregate(I(sum_score / 10) ~ grp, dt, sd)
 ```
 
@@ -118,7 +119,7 @@ As with the entire sample, one can modify the default interval using `interval =
 
 To plot the descriptive statistics e.g. the `mean`, call:
 
-```{r describe_plot_1, cache = TRUE}
+```{r describe_plot_1, cache = FALSE}
 ugcflss_describe_plot(fitted_model, stat = "mean")
 ```
 
@@ -126,7 +127,7 @@ ugcflss_describe_plot(fitted_model, stat = "mean")
 
 We can perform pairwise comparisons using:
 
-```{r pairwise_1, cache = TRUE, out.width = "150%"}
+```{r pairwise_1, cache = FALSE, out.width = "150%"}
 pairwise_mean_diff <- ugcflss_pairwise(fitted_model, stat = "mean")
 pairwise_mean_diff
 ```
@@ -137,7 +138,7 @@ The `p_direction` column has the probability of direction. This is the probabili
 
 We can also perform ratio and log-ratio comparisons. For example, here is the pairwise log-ratio comparison of group standard deviations:
 
-```{r pairwise_2, cache = TRUE, out.width = "150%"}
+```{r pairwise_2, cache = FALSE, out.width = "150%"}
 ugcflss_pairwise(fitted_model, stat = "sd", comparison = "log-ratio")
 ```
 
@@ -163,20 +164,20 @@ The PS is both the `stat` and `comparison` when calling the PS, the value of `co
 
 It is easier to parse several pairwise comparisons using plots. ugcflss can plot pairwise comparisons:
 
-```{r pairwise_plot_1_prep, cache = TRUE, include = FALSE}
+```{r pairwise_plot_1_prep, cache = FALSE, include = FALSE}
 pp_median_comp <- ugcflss_pairwise(
   fitted_model,
   stat = "median", comparison = "ratio"
 )
 ```
 
-```{r pairwise_plot_1, cache = TRUE, fig.height = 2.5}
+```{r pairwise_plot_1, cache = FALSE, fig.height = 2.5}
 ugcflss_pairwise_plot(fitted_model, stat = "median", comparison = "ratio")
 ```
 
 The topleft cell shows the result of median(B) / median(A) -- its value is `r ifelse(pp_median_comp$mean[1] > 1, "above 1", "less than 1")` meaning the median of group B was `r ifelse(pp_median_comp$mean[1] > 1, "greater than", "less than")` the median of group A -- there was a `r scales::percent(pp_median_comp$p_direction[1], 1)` chance this is true. The two values in brackets are the credible intervals.
 
-```{r pairwise_plot_2, cache = TRUE, fig.height = 2.5}
+```{r pairwise_plot_2, cache = FALSE, fig.height = 2.5}
 ugcflss_pairwise_plot(fitted_model, stat = "ps")
 ```
 
@@ -186,7 +187,7 @@ We do not show the probability of direction in the plot for the PS -- it can be 
 
 Sometimes, specific values on scale scores have practical significance, so we may be interested in how likely respondents were to have a score that exceeded some threshold. We can request this statistic:
 
-```{r exceed_overall, cache = TRUE}
+```{r exceed_overall, cache = FALSE}
 exceed_overall <- ugcflss_exceed_all(fitted_model)
 exceed_overall
 ```
@@ -201,17 +202,17 @@ ugcflss_exceed_group(fitted_model)
 
 One can also visualize these results:
 
-```{r exceed_overall_plot, cache = TRUE}
+```{r exceed_overall_plot, cache = FALSE}
 ugcflss_exceed_all_plot(fitted_model)
 ```
 
-```{r exceed_group_plot, cache = TRUE}
+```{r exceed_group_plot, cache = FALSE}
 ugcflss_exceed_group_plot(fitted_model)
 ```
 
 And there are options to show some desired interval (89% by default), e.g.
 
-```{r exceed_overall_plot_int, cache = TRUE}
+```{r exceed_overall_plot_int, cache = FALSE}
 ugcflss_exceed_all_plot(fitted_model, interval = .99, show_intervals = TRUE)
 ```
 
