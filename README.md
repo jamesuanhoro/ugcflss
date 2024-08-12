@@ -6,6 +6,8 @@
 [![R-CMD-check](https://github.com/jamesuanhoro/ugcflss/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jamesuanhoro/ugcflss/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/jamesuanhoro/ugcflss/branch/main/graph/badge.svg)](https://app.codecov.io/gh/jamesuanhoro/ugcflss?branch=main)
+[![R-universe
+badge](https://jamesuanhoro.r-universe.dev/badges/ugcflss)](https://jamesuanhoro.r-universe.dev/ugcflss)
 <!-- badges: end -->
 
 ugcflss performs unadjusted group comparisons for data that are sum
@@ -18,10 +20,16 @@ distribution of the data accurately.
 
 ## Installation
 
-You can install the development version of ugcflss from
-[GitHub](https://github.com/) with:
+You can install ugcflss from [R-universe](https://r-universe.dev/) with:
 
 ``` r
-# install.packages("remotes")
-remotes::install_github("jamesuanhoro/ugcflss", build_vignettes = TRUE)
+install.packages(
+  "ugcflss",
+  repos = c("https://jamesuanhoro.r-universe.dev", "https://cloud.r-project.org")
+)
 ```
+
+## Demonstration
+
+Once installed, run `vignette("ugcflss_tutorial")` for the
+demonstration.

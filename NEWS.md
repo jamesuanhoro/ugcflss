@@ -1,5 +1,6 @@
 # ugcflss 0.1.2
 
+* On R-universe
 * Minor updates to functions, added vignettes
 
 # ugcflss 0.1.1
