@@ -23,3 +23,8 @@ You can install ugcflss from [R-universe](https://r-universe.dev/) with:
 ``` r
 install.packages('ugcflss', repos = 'https://ropensci.r-universe.dev')
 ```
+
+## Demonstration
+
+Once installed, run `vignette("ugcflss_tutorial")` for the
+demonstration.
