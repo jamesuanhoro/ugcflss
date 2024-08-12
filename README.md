@@ -23,5 +23,5 @@ You can install the development version of ugcflss from
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("jamesuanhoro/ugcflss")
+remotes::install_github("jamesuanhoro/ugcflss", build_vignettes = TRUE)
 ```

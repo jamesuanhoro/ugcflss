@@ -1,5 +1,10 @@
 #' Analyze a dataset
 #'
+#' @description
+#' Major function for analyzing data.
+#' See: \code{vignette("ugcflss_tutorial")} for
+#' a demonstration
+#'
 #' @param data A dataset, ideally a data.frame.
 #' @param grouping_variable The name of the grouping_variable in the dataset.
 #' @param sum_score The name of the sum_score variable in the dataset. This
@@ -29,16 +34,10 @@
 #' @param cores Number of cores to use.
 #' @param seed Random seed.
 #'
-#' @return Objects containing analysis results.
+#' @return Object containing analysis results.
+#' See: \code{vignette("ugcflss_tutorial")} for
+#' a demonstration.
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#' model_1 <- ugcflss_fit_model(
-#'   data, grouping_variable, sum_score,
-#'   minimum_item_response, maximum_item_response, number_items
-#' )
-#' }
 ugcflss_fit_model <- function(
     data,
     grouping_variable = NA_character_,

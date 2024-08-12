@@ -69,16 +69,12 @@ add \code{override_twenty_groups = TRUE} to your function call.}
 if FALSE, hide messages.}
 }
 \value{
-Objects containing analysis results.
+Object containing analysis results.
+See: \code{vignette("ugcflss_tutorial")} for
+a demonstration.
 }
 \description{
-Analyze a dataset
-}
-\examples{
-\dontrun{
-model_1 <- ugcflss_fit_model(
-  data, grouping_variable, sum_score,
-  minimum_item_response, maximum_item_response, number_items
-)
-}
+Major function for analyzing data.
+See: \code{vignette("ugcflss_tutorial")} for
+a demonstration
 }
