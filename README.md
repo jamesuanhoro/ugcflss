@@ -18,10 +18,8 @@ distribution of the data accurately.
 
 ## Installation
 
-You can install the development version of ugcflss from
-[GitHub](https://github.com/) with:
+You can install ugcflss from [R-universe](https://r-universe.dev/) with:
 
 ``` r
-# install.packages("remotes")
-remotes::install_github("jamesuanhoro/ugcflss", build_vignettes = TRUE)
+install.packages('ugcflss', repos = 'https://ropensci.r-universe.dev')
 ```
