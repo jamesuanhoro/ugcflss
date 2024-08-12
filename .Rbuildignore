@@ -6,6 +6,7 @@
 ^README\_files$
 ^codecov\.yml$
 ^vignettes$
+!^vignettes\\ugcflss\_tutorial\.Rmd$
 ^README\.Rmd$
 ^_pkgdown\.yml$
 ^pkgdown$
