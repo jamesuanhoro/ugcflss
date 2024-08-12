@@ -1,3 +1,7 @@
+# ugcflss 0.1.2
+
+* Minor updates to functions, added vignettes
+
 # ugcflss 0.1.1
 
 * Added tests, covers all exposed functions
