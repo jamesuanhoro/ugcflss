@@ -1,0 +1,167 @@
+---
+title: "How to use ugcflss"
+output:
+  html_vignette:
+    toc: true
+    fig_width: 6.5
+    fig_height: 3.5
+vignette: >
+  %\VignetteIndexEntry{tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
+
+## Setup
+
+### Load the package
+
+```{r setup}
+library(ugcflss)
+```
+
+### Data analysis example
+
+I use hypothetical data in this example. The sum scores are the sum of 10 items, each with response categories coded 1 to 4. Hence, the sum score can range from 10 $(10 \times 1)$ to 40 $(10 \times 4)$. These data were collected from 300 people who belong to 6 groups: A -- F.
+
+```{r create_data, cache = TRUE}
+set.seed(12345)
+dt <- data.frame(grp = sample(LETTERS[1:6], 300, replace = TRUE))
+dt$sum_score <- as.integer(cut(stats::rnorm(
+  nrow(dt), -5 + 1.5 * as.integer(factor(dt$grp)), 10
+), stats::qnorm(seq(0, 1, length.out = 32), 0, 10))) + 9
+summary(dt)
+```
+
+We can visualize the data using a boxplot:
+
+```{r data_boxplot, cache = TRUE}
+boxplot(sum_score ~ grp, dt, horizontal = TRUE)
+```
+
+## Analysis
+
+### Run the model
+
+Once we have a dataset with a grouping variable (`grp` in this example), and a sum score (`sum_score` in this example), we are ready to use the ugcflss model fitting function. It will place a call to RStan so expect the model to run for several seconds. 
+
+When running the model, we need to inform the package about the minimum and maximum response categories on the items that were summed to create the sum score and the number of items we summed, here: 1, 4 and 10 respectively.
+
+```{r fit_model, cache = TRUE}
+fitted_model <- ugcflss_fit_model(
+  data = dt,
+  grouping_variable = "grp", sum_score = "sum_score",
+  minimum_item_response = 1, maximum_item_response = 4,
+  number_items = 10
+)
+```
+
+We see the iteration printout from Stan. Stan sometimes produces warnings about divergent transitions (see `adapt_delta` argument in `?ugcflss_fit_model()`) or maximum treedepth (see `max_treedepth` argument in  `?ugcflss_fit_model()`). Setting both arguments to higher values than their defaults -- `adapt_delta = .99` instead of .9 or `max_treedepth = 15` instead of 10 -- when calling `ugcflss_fit_model(..., adapt_delta = .99, max_treedepth = 15)` can resolve these warnings. We have no such warnings here, so we proceed.
+
+We now turn to several outputs that help us understand the group differences.
+
+## Simple descriptive statistics
+
+Results are all on the 1 -- 4 scale, i.e. assuming the items were averaged rather than scored. I made this choice because this is the scale I see reported in manuscripts.
+
+### For the overall sample
+
+```{r describe_overall_1, cache = TRUE}
+ugcflss_describe(fitted_model, stat = "median")
+```
+
+The estimate of the median is 2.92. By default, I report 89% quantile intervals i.e. the middle 89% of the distribution of the parameter. So one might say the median was 2.92 (SE = 0.076), 89% CrI [2.79, 3.04], where CrI stands for credible interval.
+
+Statistics such as `rhat`, `ess_bulk` and `ess_tail` are parameter convergence statistics, i.e. can we trust that the parameter has converged to a final solution? `ess` stands for effective sample size, and we want this statistic in the hundreds. `rhat` under 1.01 or 1.05 (liberal) suggests parameter convergence. One way to make `rhat` smaller and `ess_` larger is to increase the number of iterations when calling `ugcflss_fit_model()`. For example, you can modify the model fitting call: `ugcflss_fit_model(..., warmup = 2000, sampling = 2000)`, both arguments are 750 by default.
+
+Other potential statistics are `stat = "median"`, `stat = "mean"`, `stat = "sd"`, or `stat = "quantile"`. When requesting quantiles, also specify the `tau` argument to set the desired percentile. I might also want conventional 95% intervals:
+
+```{r describe_overall_2, cache = TRUE}
+ugcflss_describe(
+  fitted_model,
+  stat = "quantile", tau = .78, interval = .95
+)
+```
+
+The 78% percentile was 3.54 (SE = .049), 95% CrI [3.45, 3.64].
+
+For those more familiar with Bayesian analysis, you can request these computed samples by calling `ugcflss_describe(..., return_draws = TRUE)`.
+
+### By group
+
+We can also request any of the statistics above by group:
+
+```{r describe_group_1, cache = TRUE}
+ugcflss_describe(fitted_model, stat = "sd", by_group = TRUE)
+```
+
+These are the group standard deviations. Out of curiosity, I also show their sample estimates:
+
+```{r describe_group_2, cache = TRUE}
+aggregate(I(sum_score / 10) ~ grp, dt, sd)
+```
+
+The model-based results from the package produce group standard deviations that are more similar to each other than those based on sample statistics.
+
+As with the entire sample, one can modify the default interval using `interval = .xx` or request draws using `return_draws = TRUE`.
+
+### Plotting the descriptive statistics
+
+To plot the descriptive statistics e.g. the `mean`, call:
+
+```{r describe_plot_1, cache = TRUE}
+ugcflss_describe_plot(fitted_model, stat = "mean")
+```
+
+## Pairwise comparisons
+
+We can perform pairwise comparisons using:
+
+```{r pairwise_1, cache = TRUE}
+ugcflss_pairwise(fitted_model, stat = "mean")
+```
+
+We see pairwise mean differences, for example: the mean of group B is less than the mean of group A by .00199 points (SE = 0.10), 89% CrI [-0.17, 0.16].
+
+We can also perform ratio and log-ratio comparisons. For example, here is the pairwise log-ratio comparison of group standard deviations:
+
+```{r pairwise_2, cache = TRUE}
+ugcflss_pairwise(fitted_model, stat = "sd", comparison = "log-ratio")
+```
+
+Ratios of positive numbers have an assymetric scale. When the numerator is less, the ratio will range between 0 and 1, otherwise, it will range between 1 and infinity. Using a log-ratio comparison transforms 0--1 to to a number less than 0, and numbers greater than 1 to a number above 0 -- thus making the comparison scale symmetric.
+
+`comparison` must be one of `"difference"` (default), `"ratio"`, or `"log-ratio"`.
+
+Again, users who are more familiar with Bayesian statistics can request the computed samples of the pairwise comparisons by calling `ugcflss_pairwise(..., return_draws = TRUE)`.
+
+### Probability of superiority
+
+In addition to the earlier statistics, we can also compute the pairwise probability of superiority (PS). This statistics communicates how likely it is that members of one group will have responses greater than members from another group. For example, a PS of 60% implies that if we randomly recruited 100 pairs of respondents from two groups, A and B, members of group A would have the higher value in 60 of the pairs, while members of group B would have the higher value in 40 pairs. Thus a PS of 50% implies neither group has the higher values.
+
+To perform pairwise comparisons using the PS, call:
+
+```{r eval=FALSE}
+ugcflss_pairwise(fitted_model, stat = "ps")
+```
+
+The PS is both the `stat` and `comparison` when calling the PS, the value of `comparison` is ignored.
+
+### Plotting pairwise comparisons
+
+It is easier to parse several pairwise comparisons using plots. ugcflss can plot pairwise comparisons:
+
+```{r pairwise_plot_1, cache = TRUE, fig.height = 2.5}
+ugcflss_pairwise_plot(fitted_model, stat = "median", comparison = "ratio")
+```
+
+```{r pairwise_plot_2, cache = TRUE, fig.height = 2.5}
+ugcflss_pairwise_plot(fitted_model, stat = "ps")
+```

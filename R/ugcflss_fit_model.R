@@ -19,6 +19,12 @@
 #' if FALSE, hide messages.
 #' @param warmup Number of iterations used to warmup the sampler, per chain.
 #' @param sampling Number of iterations retained for inference, per chain.
+#' @param refresh (Positive whole number) How often to print the status of
+#' the sampler.
+#' @param adapt_delta Number in (0,1). Increase to resolve divergent
+#' transitions.
+#' @param max_treedepth (Positive whole number) Increase to resolve problems
+#' with maximum tree depth.
 #' @param chains Number of chains to use.
 #' @param cores Number of cores to use.
 #' @param seed Random seed.
@@ -35,10 +41,18 @@
 #' }
 ugcflss_fit_model <- function(
     data,
-    grouping_variable = NA_character_, sum_score = NA_character_,
-    minimum_item_response = NA_integer_, maximum_item_response = NA_integer_,
+    grouping_variable = NA_character_,
+    sum_score = NA_character_,
+    minimum_item_response = NA_integer_,
+    maximum_item_response = NA_integer_,
     number_items = NA_integer_,
-    warmup = 750, sampling = 750, chains = 3, cores = 1,
+    warmup = 750,
+    sampling = 750,
+    refresh = max((warmup + sampling) %/% 10, 1),
+    adapt_delta = .9,
+    max_treedepth = 10,
+    chains = 3,
+    cores = min(chains, max(parallel::detectCores() - 2), 1),
     seed = sample.int(.Machine$integer.max, 1),
     override_twenty_groups = FALSE,
     show_messages = TRUE) {
@@ -73,10 +87,15 @@ ugcflss_fit_model <- function(
     y_ord = checked_dt$ss_i_min_shift, grp = grp_i, user_input = user_input
   )
 
+  is_positive_whole_number(refresh)
+  is_positive_whole_number(max_treedepth)
+  check_tau_interval(adapt_delta, "adapt_delta")
+
   model <- rstan::sampling(
     stanmodels$ugcflss,
     data = dl,
-    iter = warmup + sampling, warmup = warmup, chains = chains, cores = cores,
+    iter = warmup + sampling, warmup = warmup, refresh = refresh,
+    chains = chains, cores = cores,
     init = function() {
       list(
         intercept = 0, sigma_0 = 1, sigma_1 = 1, gamma = rep(.5, dl$n_gamma),
@@ -84,6 +103,7 @@ ugcflss_fit_model <- function(
       )
     },
     seed = seed,
+    control = list(adapt_delta = adapt_delta, max_treedepth = max_treedepth),
     show_messages = !isFALSE(show_messages)
   )
 

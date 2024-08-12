@@ -32,6 +32,7 @@ vignettes/*.pdf
 # knitr and R markdown default cache directories
 *_cache/
 /cache/
+vignettes/tutorial_*/
 
 # Temporary files created by R markdown
 *.utf8.md
@@ -62,3 +63,4 @@ Read-and-delete-me
 
 # hide src
 src/*
+inst/doc

@@ -13,8 +13,11 @@ ugcflss_fit_model(
   number_items = NA_integer_,
   warmup = 750,
   sampling = 750,
+  refresh = max((warmup + sampling)\%/\%10, 1),
+  adapt_delta = 0.9,
+  max_treedepth = 10,
   chains = 3,
-  cores = 1,
+  cores = min(chains, max(parallel::detectCores() - 2), 1),
   seed = sample.int(.Machine$integer.max, 1),
   override_twenty_groups = FALSE,
   show_messages = TRUE
@@ -42,6 +45,15 @@ Must be at least 1.}
 \item{warmup}{Number of iterations used to warmup the sampler, per chain.}
 
 \item{sampling}{Number of iterations retained for inference, per chain.}
+
+\item{refresh}{(Positive whole number) How often to print the status of
+the sampler.}
+
+\item{adapt_delta}{Number in (0,1). Increase to resolve divergent
+transitions.}
+
+\item{max_treedepth}{(Positive whole number) Increase to resolve problems
+with maximum tree depth.}
 
 \item{chains}{Number of chains to use.}
 
