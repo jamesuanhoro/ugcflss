@@ -5,8 +5,9 @@
 ^README\.html$
 ^README\_files$
 ^codecov\.yml$
-^vignettes$
-!^vignettes\\ugcflss\_tutorial\.Rmd$
+^ugcflss_tutorial_cache$
+^ugcflss_tutorial_files$
+^ugcflss_tutorial\.html$
 ^README\.Rmd$
 ^_pkgdown\.yml$
 ^pkgdown$
