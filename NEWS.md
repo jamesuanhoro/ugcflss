@@ -1,3 +1,7 @@
+# ugcflss (development version)
+
+* Added PPD section to vignette
+
 # ugcflss 0.1.2
 
 * On R-universe

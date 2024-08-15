@@ -64,3 +64,5 @@ Read-and-delete-me
 # hide src
 src/*
 inst/doc
+/doc/
+/Meta/
