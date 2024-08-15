@@ -35,8 +35,8 @@ I use hypothetical data in this example. The sum scores are the sum of 10 items,
 set.seed(12345)
 dt <- data.frame(grp = sample(LETTERS[1:6], 300, replace = TRUE))
 dt$sum_score <- as.integer(cut(stats::rnorm(
-  nrow(dt), -5 + 1.5 * as.integer(factor(dt$grp)), 10
-), stats::qnorm(seq(0, 1, length.out = 32), 0, 10))) + 9
+  nrow(dt), -15 + 1.5 * as.integer(factor(dt$grp)), 15
+), stats::qnorm(seq(0, 1, length.out = 32), 0, 15))) + 9
 summary(dt)
 ```
 
@@ -65,6 +65,54 @@ fitted_model <- ugcflss_fit_model(
 ```
 
 We see the iteration printout from Stan. Stan sometimes produces warnings about divergent transitions (see `adapt_delta` argument in `?ugcflss_fit_model()`) or maximum treedepth (see `max_treedepth` argument in  `?ugcflss_fit_model()`). Setting both arguments to higher values than their defaults -- `adapt_delta = .99` instead of .9 or `max_treedepth = 15` instead of 10 -- when calling `ugcflss_fit_model(..., adapt_delta = .99, max_treedepth = 15)` can resolve these warnings. We have no such warnings here, so we proceed.
+
+## Model checking via the posterior predictive distribution
+
+### Built-in checks
+
+One way to examine Bayesian models is to simulate data from the models then assess how well data from the models reflects the original data -- this is called posterior predictive checking. To assess how well the simulated data matches the distribution of the original data, try:
+
+```{r ppd_dens, cache = FALSE}
+# ppd_samples is the number of datasets we want to simulate
+ugcflss_ppd_plot(fitted_model, ppd_samples = 500)
+```
+
+where $y$ is the density of the overall data and $y_{rep}$ is the density of the simulated datasets.
+
+You could also do this by group:
+
+```{r ppd_dens_group, cache = FALSE}
+ugcflss_ppd_plot(fitted_model, ppd_samples = 500, by_group = TRUE)
+```
+
+### Using the bayesplot package
+
+For more detailed assessment, it is possible to directly request simulated datasets:
+
+```{r ppd_req, cache = FALSE}
+ppd_draws <- ugcflss_ppd(fitted_model, ppd_samples = 500)
+dim(ppd_draws) # should be 500 rows by 300 people
+```
+
+The `bayesplot` package has several features for comparing this distribution to the original data. For example, we can compare the observed count for each value to the distribution of counts based on the model:
+
+```{r ppd_bars, cache = FALSE}
+# the ppd draws are on the 1--4 scale, transform to sum scores:
+ppd_sum_score <- ppd_draws * fitted_model$user_input$n_items
+bayesplot::ppc_bars(dt$sum_score, ppd_sum_score)
+```
+
+Here, the distribution ($y_{rep}$ error bars) should ideally contain the actual bars.
+
+You could also check specific statistics, with the expectation that the model-implied distribution of the statistic includes the sample statistic:
+
+```{r ppd_stats, cache = FALSE}
+# Checking the SD
+bayesplot::ppc_stat(dt$sum_score, ppd_sum_score, stat = "sd")
+# Or the 75% percentile
+q75 <- function(y) quantile(y, .75)
+bayesplot::ppc_stat(dt$sum_score, ppd_sum_score, stat = "q75")
+```
 
 We now turn to several outputs that help us understand the group differences.
 
