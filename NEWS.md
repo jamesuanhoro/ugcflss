@@ -1,6 +1,7 @@
 # ugcflss (development version)
 
 * Added PPD section to vignette
+* Resolved error with color-blind palette applied to more than 8 groups for CCDF group plot.
 
 # ugcflss 0.1.2
 

@@ -1,6 +1,6 @@
 Package: ugcflss
 Title: Unadjusted Group Comparisons For Likert Sum Scores
-Version: 0.1.2.9000
+Version: 0.1.2.9001
 Authors@R: 
     person("James", "Uanhoro", , "James.Uanhoro@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4843-927X"))
