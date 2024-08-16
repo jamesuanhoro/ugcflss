@@ -203,7 +203,6 @@ ugcflss_exceed_group_plot <- function(
       labels = scales::percent_format(1), breaks = seq(0, 1, .2)
     ) +
     ggplot2::theme_bw() +
-    ggplot2::scale_color_manual(values = get_cb_pal()) +
     ggplot2::coord_cartesian(
       xlim = c(user_input$min, user_input$max), ylim = c(0, 1)
     ) +
@@ -215,6 +214,10 @@ ugcflss_exceed_group_plot <- function(
   if (isTRUE(show_intervals)) {
     p_out <- p_out +
       ggplot2::geom_ribbon(ggplot2::aes(ymin = lo, ymax = hi), alpha = .25)
+  }
+  if (res_obj$user_input$n_grp <= 8) {
+    p_out <- p_out +
+      ggplot2::scale_color_manual(values = get_cb_pal())
   }
   return(p_out)
 }
